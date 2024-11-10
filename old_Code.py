@@ -246,6 +246,7 @@ class LWLauncher:
         self.speed_label = tk.Label(self.root, text="Velocidad: 0 MB/s", font=("Helvetica", 11), fg=texto_color, bg=fondo_color)
         self.speed_label.place(x=15, y=510)
 
+
     def obtener_version_local(self):
         version_archivo = "Version.txt"
         if os.path.exists(version_archivo):
