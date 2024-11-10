@@ -16,8 +16,6 @@ class LWLauncher:
         self.cargar_imagen()
         
         self.inicializar_variables()
-        # Cambiar color de fondo de la ventana
-        self.root.configure(bg="#2E2E2E")  # Fondo oscuro
         self.configurar_interfaz()
         self.configurar_ventana()
         
@@ -43,6 +41,9 @@ class LWLauncher:
         self.root.geometry("850x550")  # Definir tamaño de la ventana (ancho x alto)
         self.root.resizable(False, False)
         self.crear_menu()  # Crear el menú en la parte superior
+        
+        # Cambiar color de fondo de la ventana
+        self.root.configure(bg="#2E2E2E")  # Fondo oscuro
 
     def crear_menu(self):
         # Crear la barra de menú
