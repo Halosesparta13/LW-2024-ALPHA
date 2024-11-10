@@ -15,14 +15,29 @@ import sys
 class LWLauncher:
     def __init__(self, root):
         self.root = root
-        self.verificar_version_launcher()
         # Cargar la imagen
         self.cargar_imagen()
+        self.verificar_o_crear_version_txt()
         
         self.inicializar_variables()
         self.configurar_interfaz()
         self.configurar_ventana()
+        self.verificar_version_launcher()
         
+
+    def verificar_o_crear_version_txt(self):
+        # Nombre del archivo y ruta (en la misma carpeta donde se ejecuta el programa)
+        archivo_version = "Version.txt"
+
+        # Verificar si el archivo existe
+        if not os.path.exists(archivo_version):
+            # Si no existe, crear el archivo con las dos líneas inicializadas como "0.0.0"
+            with open(archivo_version, "w") as archivo:
+                archivo.write("0.0.0\n0.0.0\n")
+            print(f"{archivo_version} no existía y ha sido creado con valores predeterminados.")
+        else:
+            print(f"{archivo_version} ya existe.")
+
 
     def inicializar_variables(self):
         self.url_version = "https://raw.githubusercontent.com/Aarods/LuckyWorld-Launcher/main/Version.txt"
@@ -79,10 +94,10 @@ class LWLauncher:
     def verificar_version_launcher(self):
         try:
             # Leer la versión local desde version.txt (segunda línea)
-            with open("version.txt", "r") as f:
+            with open("Version.txt", "r") as f:
                 lines = f.readlines()
                 if len(lines) < 2:
-                    messagebox.showerror("Error", "El archivo version.txt no tiene una segunda línea con la versión.")
+                    messagebox.showerror("Error", "El archivo Version.txt no tiene una segunda línea con la versión.")
                     return
                 version_local = lines[1].strip()
 
