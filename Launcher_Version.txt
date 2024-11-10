@@ -1,4 +1,4 @@
-0.0.4
+0.1.1
 https://www.dropbox.com/scl/fi/hi0rgu9ztcg77bvhcnici/Luckyworld-Launcher.exe?rlkey=9evg19h8nzbz35fyrsz819m34&st=55i7lc08&dl=1
 
 CHANGELOG (10/11/2024)

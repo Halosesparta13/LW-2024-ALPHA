@@ -33,7 +33,7 @@ class LWLauncher:
         if not os.path.exists(archivo_version):
             # Si no existe, crear el archivo con las dos líneas inicializadas como "0.0.0"
             with open(archivo_version, "w") as archivo:
-                archivo.write("0.0.0\n0.0.0\n")
+                archivo.write("0.0.0\n0.1.0\n")
             print(f"{archivo_version} no existía y ha sido creado con valores predeterminados.")
         else:
             print(f"{archivo_version} ya existe.")
