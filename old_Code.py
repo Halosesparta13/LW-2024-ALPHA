@@ -128,21 +128,17 @@ class LWLauncher:
                     with open("Version.txt", "w") as f:
                         f.writelines(lines)
 
-                    messagebox.showinfo("Actualización completada", "El launcher se ha actualizado. Vuelva a abrir el programa...")
+                    messagebox.showinfo("Actualización completada", "El launcher se ha descargado. El programa se cerrará y actualizará...")
 
-                    # Cerrar el programa
+                    # Ejecutar el actualizador en segundo plano
+                    subprocess.Popen([sys.executable, 'actualizador.py'])  # Ejecutar el script actualizador.py en segundo plano
+
+                    # Cerrar el programa principal
                     sys.exit()  # Cierra el programa
 
-                    # Mover el archivo descargado al destino
-                    os.rename(temp_file, "Luckyworld Launcher.exe")
-                    messagebox.showinfo("Reiniciar", "El launcher ha sido actualizado. Reiniciando...")
-
-                    # Reiniciar el programa
-                    #os.execv("Luckyworld Launcher.exe", sys.argv)
-
         except Exception as e:
-            messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")   
-    
+            messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")
+
     def abrir_url_version(self):
         if not self.url_version:
             messagebox.showerror("Error", "No hay una URL de versión disponible para abrir.")
