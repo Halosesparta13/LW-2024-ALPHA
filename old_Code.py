@@ -263,8 +263,16 @@ class LWLauncher:
         print(f"Versión actualizada a {version}")
 
     def elegir_ubicacion(self):
-        # Definir la ruta predeterminada (el directorio de Minecraft)
-        ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
+        # Definir la ruta predeterminada según el sistema operativo
+        sistema = platform.system()
+        if sistema == "Windows":
+            ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
+        elif sistema == "Darwin":  # macOS
+            ruta_predeterminada = os.path.expanduser('~/Library/Application Support/minecraft')
+        else:
+            # Ruta genérica para otros sistemas operativos
+            ruta_predeterminada = "./minecraft"
+
         print(f"Ruta predeterminada: {ruta_predeterminada}")
         
         # Abrir el diálogo para seleccionar una carpeta, usando la ruta predeterminada
@@ -276,10 +284,11 @@ class LWLauncher:
             self.carpeta_destino = "./descargas"
             print(f"Carpeta destino actualizada (no seleccionó carpeta): {self.carpeta_destino}")
         
-        if not os.path.exists(self.carpeta_destino):  # Si la carpeta destino no existe, crearla
+        # Crear la carpeta destino si no existe
+        if not os.path.exists(self.carpeta_destino):
             os.makedirs(self.carpeta_destino)
             print(f"Carpeta destino creada (no existía): {self.carpeta_destino}")
-
+            
     def eliminar_carpeta_mods(self):
         ruta_mods = os.path.join(self.carpeta_destino, 'mods')
 
