@@ -217,8 +217,9 @@ class LWLauncher:
         print(f"Versión actualizada a {version}")
 
     def elegir_ubicacion(self):
-        # Definir la ruta predeterminada (por ejemplo, el directorio de Minecraft)
+        # Definir la ruta predeterminada (el directorio de Minecraft)
         ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
+        print(f"Ruta predetermiada: {ruta_predeterminada}")
         
         # Abrir el diálogo para seleccionar una carpeta, usando la ruta predeterminada
         self.carpeta_destino = filedialog.askdirectory(initialdir=ruta_predeterminada)  
