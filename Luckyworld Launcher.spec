@@ -5,7 +5,7 @@ a = Analysis(
     ['old_Code.py'],
     pathex=[],
     binaries=[],
-    datas=[('assets', 'assets')],
+    datas=[('assets', 'assets'), ('actualizador.py', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
