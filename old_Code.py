@@ -91,6 +91,28 @@ class LWLauncher:
         # Configurar la barra de menús en la ventana
         self.root.config(menu=menu_bar)
 
+    def verificar_y_eliminar_launcher_antiguo(self, nuevo_nombre):
+        try:
+            # Obtener el directorio actual (donde está el nuevo launcher)
+            directorio_actual = os.getcwd()
+
+            # Buscar todos los archivos que empiecen con "LuckyWorld Launcher" y terminen con ".exe"
+            archivos = os.listdir(directorio_actual)
+            patron = re.compile(r"LuckyWorld Launcher (\d+\.\d+\.\d+)v\.exe")  # Patente para encontrar versiones en los nombres
+
+            for archivo in archivos:
+                # Verificar si el archivo coincide con el patrón
+                match = patron.match(archivo)
+                if match:
+                    version_encontrada = match.group(1)  # Extraer la versión del nombre del archivo
+                    if f"LuckyWorld Launcher {version_encontrada}v.exe" != nuevo_nombre:
+                        # Si el archivo tiene una versión distinta a la del nuevo launcher, eliminarlo
+                        print(f"Eliminando el archivo antiguo: {archivo}")
+                        os.remove(os.path.join(directorio_actual, archivo))
+
+        except Exception as e:
+            print(f"Error al intentar verificar y eliminar el launcher antiguo: {e}")
+
     def verificar_version_launcher(self):
         try:
             # Leer la versión local desde la segunda línea de Version.txt
@@ -116,6 +138,10 @@ class LWLauncher:
                 respuesta = messagebox.askyesno("Actualización disponible", 
                                                 "Hay una versión superior del launcher. ¿Desea actualizar?")
                 if respuesta:
+                    # Verificar y eliminar el launcher anterior si no coincide con la versión nueva
+                    nuevo_nombre = f"LuckyWorld Launcher {version_remota_Launcher}v.exe"
+                    self.verificar_y_eliminar_launcher_antiguo(nuevo_nombre)
+
                     # Descargar el archivo de actualización a una ubicación temporal
                     temp_file = os.path.join(os.getcwd(), "temp_Luckyworld_Launcher.exe")
                     descarga = requests.get(url_descarga, stream=True)
@@ -131,7 +157,6 @@ class LWLauncher:
                     messagebox.showinfo("Actualización completada", "El launcher se ha descargado. El programa se cerrará y actualizará...")
 
                     # Renombrar el archivo descargado a LuckyWorld Launcher [version_remota_Launcher].exe
-                    nuevo_nombre = f"LuckyWorld Launcher {version_remota_Launcher}v.exe"
                     os.rename(temp_file, nuevo_nombre)
 
                     # Ejecutar el nuevo launcher
@@ -499,13 +524,15 @@ class LWLauncher:
             print(f"Error al leer el archivo de versión: {e}")
 
     def iniciar_descarga(self):
+        print("Iniciando descarga")
         try:
             # Verificar la versión primero
             response = requests.get(self.url_version)
+            print(self.url_version)
             response.raise_for_status()  # Lanza una excepción si la solicitud falló
             content = response.text.strip().split('\n')
             version_remota = content[0].strip()
-            
+            print(version_remota)
             # Validar si el usuario seleccionó una carpeta de destino
             if not self.carpeta_destino:  # Si carpeta_destino está vacía
                 messagebox.showerror("Error", "Debes de elegir una carpeta destino antes de descargar")
@@ -683,7 +710,17 @@ class LWLauncher:
             self.pausado = False
             self.pausar_button.config(state=tk.NORMAL)
             self.reanudar_button.config(state=tk.DISABLED)
-
+    def cancelar_descarga(self):
+        if self.descargando:
+            self.descargando = False
+            if self.thread and self.thread.is_alive():
+                # Aquí puedes implementar la lógica para detener el hilo si es necesario
+                pass
+            self.comenzar_button.config(state=tk.NORMAL)
+            self.elegir_button.config(state=tk.NORMAL)
+            self.pausar_button.config(state=tk.DISABLED)
+            self.reanudar_button.config(state=tk.DISABLED)
+            messagebox.showinfo("Cancelado", "La descarga ha sido cancelada.")
 # Crear la ventana raíz
 root = tk.Tk()
 
