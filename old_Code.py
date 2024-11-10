@@ -8,6 +8,8 @@ import zipfile
 from PIL import Image, ImageTk
 import webbrowser  # Importar el módulo webbrowser
 import re
+import platform
+import subprocess
 
 class LWLauncher:
     def __init__(self, root):
@@ -52,6 +54,7 @@ class LWLauncher:
         # Crear el primer menú desplegable: "Archivo"
         archivo_menu = tk.Menu(menu_bar, tearoff=0)
         archivo_menu.add_command(label="Salir", command=self.salir)
+        archivo_menu.add_command(label="Directorio", command=self.abrir_directorio)
         menu_bar.add_cascade(label="Archivo", menu=archivo_menu)
         
         # Crear el segundo menú desplegable: "Configuración"
@@ -71,12 +74,55 @@ class LWLauncher:
         self.root.config(menu=menu_bar)
 
     def abrir_url_version(self):
-        webbrowser.open(self.url_version)
+        if not self.url_version:
+            messagebox.showerror("Error", "No hay una URL de versión disponible para abrir.")
+            return
+
+        try:
+            # Intentar abrir con webbrowser, que es multiplataforma
+            webbrowser.open(self.url_version)
+        except Exception as e:
+            # Si webbrowser falla, intentar con comandos específicos de cada sistema
+            sistema = platform.system()
+            try:
+                if sistema == "Windows":
+                    os.startfile(self.url_version)
+                elif sistema == "Darwin":  # macOS
+                    subprocess.call(["open", self.url_version])
+                elif sistema == "Linux":
+                    subprocess.call(["xdg-open", self.url_version])
+                else:
+                    messagebox.showerror("Error", "Sistema operativo no soportado para abrir la URL.")
+            except Exception as e:
+                print(f"Error al abrir la URL: {e}")
+                messagebox.showerror("Error", f"No se pudo abrir la URL: {e}")
+        
     def salir(self):
         self.root.quit()
 
     def abrir_preferencias(self):
         messagebox.showinfo("Preferencias", "Función de preferencias aún no implementada.")
+    
+    def abrir_directorio(self):
+        # Verificar si la carpeta de destino está definida
+        if not self.carpeta_destino:
+            messagebox.showerror("Error", "No has elegido aún una ubicación para los mods")
+            return
+
+        # Intentar abrir la carpeta de destino según el sistema operativo
+        try:
+            sistema = platform.system()
+            if sistema == "Windows":
+                os.startfile(self.carpeta_destino)  # Windows
+            elif sistema == "Darwin":  # macOS
+                subprocess.call(["open", self.carpeta_destino])
+            elif sistema == "Linux":
+                subprocess.call(["xdg-open", self.carpeta_destino])
+            else:
+                messagebox.showerror("Error", "Sistema operativo no soportado para abrir el directorio.")
+        except Exception as e:
+            print(f"Error al abrir el directorio: {e}")
+            messagebox.showerror("Error", f"No se pudo abrir el directorio: {e}")
 
     def mostrar_acerca_de(self):
         mensaje = ("Launcher LuckyWorld - BETA\n\n"
