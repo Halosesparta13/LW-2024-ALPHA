@@ -33,7 +33,7 @@ class LWLauncher:
         self.version_local = self.obtener_version_local()  # Obtener versión local al iniciar
         self.zip_files = []  # Lista para almacenar archivos ZIP descargados
         self.opcionesCB = []
-        print(f"url_version: {self.url_version}")
+        #print(f"url_version: {self.url_version}")
 
 
     def configurar_ventana(self):
@@ -365,9 +365,29 @@ class LWLauncher:
                         self.pausar_button.config(state=tk.NORMAL)
                         self.reanudar_button.config(state=tk.DISABLED)
 
-                        # Actualizar la extracción de links desde las líneas 3 a 8 y línea 11
-                        self.urls = content[2:8] + [content[10]]  # Líneas 3 a 8 y la línea 11
+                        # Buscar la línea que coincide con el valor del combobox
+                        combobox_value = self.opcionesCB[self.combo_version.current()]  # Obtener el valor seleccionado en el combobox
+                        self.urls = []  # Limpiar la lista de URLs
 
+                        # Encontrar la línea que contiene el valor seleccionado en el combobox
+                        encontrado = False
+                        for i, line in enumerate(content):
+                            if combobox_value in line:  # Buscar la línea que contiene el valor del combobox
+                                encontrado = True
+                                # Extraer las URLs debajo de esa línea
+                                for j in range(i + 1, len(content)):
+                                    if content[j].startswith("http"):  # Si la línea es una URL
+                                        self.urls.append(content[j])
+                                    elif content[j].strip() == "":  # Si encontramos una línea en blanco, terminamos
+                                        break
+                                break  # Salir del bucle una vez que encontramos la versión
+
+                        # Si no encontramos la versión seleccionada o las URLs
+                        if not encontrado or not self.urls:
+                            messagebox.showerror("Error", "No se encontraron URLs para descargar después de la versión seleccionada.")
+                            return
+
+                        # Iniciar el proceso de descarga
                         self.thread = threading.Thread(target=self.procesar_descargas)
                         self.thread.start()
                 else:
@@ -389,14 +409,33 @@ class LWLauncher:
                     self.pausar_button.config(state=tk.NORMAL)
                     self.reanudar_button.config(state=tk.DISABLED)
 
-                    # Actualizar la extracción de links desde las líneas 3 a 8 y línea 11
-                    self.urls = content[2:8] + [content[10]]  # Líneas 3 a 8 y la línea 11
+                    # Buscar la línea que coincide con el valor del combobox
+                    combobox_value = self.opcionesCB[self.combo_version.current()]  # Obtener el valor seleccionado en el combobox
+                    self.urls = []  # Limpiar la lista de URLs
 
+                    # Encontrar la línea que contiene el valor seleccionado en el combobox
+                    encontrado = False
+                    for i, line in enumerate(content):
+                        if combobox_value in line:  # Buscar la línea que contiene el valor del combobox
+                            encontrado = True
+                            # Extraer las URLs debajo de esa línea
+                            for j in range(i + 1, len(content)):
+                                if content[j].startswith("http"):  # Si la línea es una URL
+                                    self.urls.append(content[j])
+                                elif content[j].strip() == "":  # Si encontramos una línea en blanco, terminamos
+                                    break
+                            break  # Salir del bucle una vez que encontramos la versión
+
+                    # Si no encontramos la versión seleccionada o las URLs
+                    if not encontrado or not self.urls:
+                        messagebox.showerror("Error", "No se encontraron URLs para descargar después de la versión seleccionada.")
+                        return
+
+                    # Iniciar el proceso de descarga
                     self.thread = threading.Thread(target=self.procesar_descargas)
                     self.thread.start()
         except Exception as e:
             messagebox.showerror("Error", f"Error al verificar la versión: {e}")
-
 
     def procesar_descargas(self):
         self.descargando = True
