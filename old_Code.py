@@ -219,19 +219,23 @@ class LWLauncher:
     def elegir_ubicacion(self):
         # Definir la ruta predeterminada (el directorio de Minecraft)
         ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
-        print(f"Ruta predetermiada: {ruta_predeterminada}")
+        print(f"Ruta predeterminada: {ruta_predeterminada}")
         
         # Abrir el diálogo para seleccionar una carpeta, usando la ruta predeterminada
-        self.carpeta_destino = filedialog.askdirectory(initialdir=ruta_predeterminada)  
-        
+        self.carpeta_destino = filedialog.askdirectory(initialdir=ruta_predeterminada)
+        print(f"Carpeta destino (elegida): {self.carpeta_destino}")
+
         if not self.carpeta_destino:  # Si no se selecciona ninguna carpeta
             messagebox.showinfo("Info", "No se seleccionó carpeta, se usará ./descargas por defecto.")
             self.carpeta_destino = "./descargas"
-        if not os.path.exists(self.carpeta_destino):
+            print(f"Carpeta destino actualizada (no seleccionó carpeta): {self.carpeta_destino}")
+        
+        if not os.path.exists(self.carpeta_destino):  # Si la carpeta destino no existe, crearla
             os.makedirs(self.carpeta_destino)
+            print(f"Carpeta destino creada (no existía): {self.carpeta_destino}")
 
     def eliminar_carpeta_mods(self):
-        ruta_mods = os.path.join(os.getenv('APPDATA'), '.minecraft', 'mods')
+        ruta_mods = os.path.join(self.carpeta_destino, 'mods')
 
         if os.path.exists(ruta_mods):
             respuesta = messagebox.askyesno(
@@ -253,11 +257,14 @@ class LWLauncher:
                     messagebox.showerror("Error", f"Error al eliminar la carpeta 'mods': {e}")
             else:
                 print("La eliminación de la carpeta 'mods' ha sido cancelada.")
+        else:
+            print("No se ha encontrado la carpeta 'mods' por lo que se saltea este paso")
 
     def descargar_archivo(self, url, destino):
         try:
             nombre_archivo = url.split("/")[-1].split("?")[0]
             ruta_archivo = os.path.join(destino, nombre_archivo)
+            print(f"Descargar_archivo ruta {destino}")
 
             self.status_label.config(text=f"Descargando {nombre_archivo}...")
             print(f"Descargando {nombre_archivo}...")
@@ -356,9 +363,11 @@ class LWLauncher:
                     self.eliminar_carpeta_mods()
                     if not self.carpeta_destino:
                         self.carpeta_destino = "./descargas"  # Usar ./descargas si no se elige carpeta
+                        print(f"Carpeta destino Iniciar_Descarga (FALLO) {self.carpeta_destino}")
                     if not os.path.exists(self.carpeta_destino):
                         os.makedirs(self.carpeta_destino)
-
+                        print(f"Carpeta destino Iniciar_Descarga (FALLO) {self.carpeta_destino}")
+                    
                     if not self.descargando:
                         self.descargando = True
                         self.pausado = False
@@ -444,9 +453,12 @@ class LWLauncher:
         self.pausado = False
 
         # Definir rutas de destino
-        ruta_mods = os.path.join(os.getenv('APPDATA'), '.minecraft', 'mods')
-        ruta_minecraft = os.path.join(os.getenv('APPDATA'), '.minecraft')
+        ruta_mods =os.path.join(self.carpeta_destino, 'mods')
+        print(f"Ruta Mods PROCESAR DESCARGA {ruta_mods}")
+        ruta_minecraft = os.path.join(self.carpeta_destino)
+        print(f"Ruta Minecraft PROCESAR DESCARGA {ruta_minecraft}")
 
+        ##UH.. creo que esto lo borrare pero no estoy seguro
         if not os.path.exists(ruta_mods):
             os.makedirs(ruta_mods)
         if not os.path.exists(ruta_minecraft):
@@ -464,8 +476,10 @@ class LWLauncher:
 
     def descomprimir_y_eliminar_archivos(self):
         print("Iniciando proceso para descomprimir")
-        ruta_mods = os.path.join(os.getenv('APPDATA'), '.minecraft', 'mods')
-        ruta_minecraft = os.path.join(os.getenv('APPDATA'), '.minecraft')
+        ruta_mods = os.path.join(self.carpeta_destino, 'mods')
+        print(f"Descomprimir RUTA MODS {ruta_mods}")
+        ruta_minecraft = os.path.join(self.carpeta_destino)
+        print(f"Descomprimir RUTA MINECRAFT {ruta_mods}")
 
         for archivo_zip in self.zip_files:
             try:
@@ -476,13 +490,14 @@ class LWLauncher:
                 else:
                     destino = ruta_mods
 
-                # Asegurarse de que la carpeta de destino exista
+                # Asegurarse de que la carpeta de destino exista (no se si borrarlo ya que no tiene sentido)
                 if not os.path.exists(destino):
                     os.makedirs(destino)
 
                 # Descomprimir el archivo ZIP en la carpeta de destino
                 with zipfile.ZipFile(archivo_zip, 'r') as zip_ref:
                     zip_ref.extractall(destino)  # Extraer todo el contenido
+                    print(f"Descomprimiendo en {destino}")
                 os.remove(archivo_zip)  # Eliminar el archivo ZIP
                 self.status_label.config(text=f"Descomprimiendo {archivo_zip}...")
                 print(f"Archivo {archivo_zip} descomprimido y eliminado en {destino}.")
