@@ -93,7 +93,7 @@ class LWLauncher:
 
     def verificar_version_launcher(self):
         try:
-            # Leer la versión local desde version.txt (segunda línea)
+            # Leer la versión local desde la segunda línea de Version.txt
             with open("Version.txt", "r") as f:
                 lines = f.readlines()
                 if len(lines) < 2:
@@ -101,36 +101,45 @@ class LWLauncher:
                     return
                 version_local = lines[1].strip()
 
-            # Obtener la versión remota desde self.url_launcher_version (primera línea)
+            # Obtener la versión remota y el enlace de descarga desde self.url_launcher_version
             response = requests.get(self.url_launcher_version)
             response.raise_for_status()
             content = response.text.strip().split('\n')
             if len(content) < 2:
                 messagebox.showerror("Error", "El archivo en url_launcher_version no tiene una segunda línea con el link de descarga.")
                 return
-            version_remota = content[0].strip()
+            version_remota_Launcher = content[0].strip()
             url_descarga = content[1].strip()  # Segunda línea, link de descarga
 
             # Comparar versiones
-            if version_remota > version_local:
+            if version_remota_Launcher > version_local:
                 respuesta = messagebox.askyesno("Actualización disponible", 
                                                 "Hay una versión superior del launcher. ¿Desea actualizar?")
                 if respuesta:
                     # Descargar el archivo de actualización
-                    nombre_archivo = os.path.join(os.getcwd(), "launcher_actualizado.exe")  # Puedes cambiar el nombre del archivo si prefieres
+                    nombre_archivo = os.path.join(os.getcwd(), "Luckyworld Launcher.exe")  # Nombre del archivo ejecutable
                     descarga = requests.get(url_descarga, stream=True)
                     with open(nombre_archivo, "wb") as archivo:
                         for chunk in descarga.iter_content(chunk_size=8192):
                             archivo.write(chunk)
 
-                    messagebox.showinfo("Actualización completada", "El launcher se ha actualizado. Reiniciando...")
-                    
-                    # Reiniciar el programa
-                    os.execv(nombre_archivo, sys.argv)
+                    # Actualizar solo la segunda línea de Version.txt
+                    lines[1] = f"{version_remota_Launcher}"  # Modificar solo la segunda línea
+                    with open("Version.txt", "w") as f:
+                        f.writelines(lines)
+
+                    messagebox.showinfo("Actualización completada", "El launcher se ha actualizado. Vuelva a abrir el programa...")
+
+                    # Cerrar el programa
+                    sys.exit()  # Cierra el programa
+
+            else:
+                print("Ya tienes la última versión del launcher.")
+                #messagebox.showinfo("Actualización no necesaria", "Ya tienes la última versión del launcher.")
 
         except Exception as e:
             messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")
-
+            
     def abrir_url_version(self):
         if not self.url_version:
             messagebox.showerror("Error", "No hay una URL de versión disponible para abrir.")
@@ -309,12 +318,19 @@ class LWLauncher:
         version_archivo = "Version.txt"
         if os.path.exists(version_archivo):
             with open(version_archivo, "r") as archivo:
-                return archivo.read().strip()
+                lines = archivo.readlines()
+                # Verifica si hay al menos dos líneas
+                if len(lines) >= 2:
+                    return lines[1].strip()  # Devuelve la segunda línea
+                else:
+                    # Si no hay segunda línea, retorna una versión por defecto
+                    return "0.0.0"
         else:
+            # Si el archivo no existe, crea uno con la versión por defecto en la segunda línea
             with open(version_archivo, "w") as archivo:
-                archivo.write("0.0.0\n")
+                archivo.write("0.0.0\n0.0.0\n")  # Escribe la versión por defecto en ambas líneas
             return "0.0.0"
-
+        
     def guardar_version(self, version):
         version_archivo = "Version.txt"
         with open(version_archivo, "w") as archivo:
