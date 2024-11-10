@@ -366,7 +366,7 @@ class LWLauncher:
                         self.reanudar_button.config(state=tk.DISABLED)
 
                         # Buscar la línea que coincide con el valor del combobox
-                        combobox_value = self.opcionesCB[self.combo_version.current()]  # Obtener el valor seleccionado en el combobox
+                        combobox_value = self.opcionesCB[self.combobox.current()]  # Obtener el valor seleccionado en el combobox
                         self.urls = []  # Limpiar la lista de URLs
 
                         # Encontrar la línea que contiene el valor seleccionado en el combobox
@@ -398,7 +398,7 @@ class LWLauncher:
 
                 self.eliminar_carpeta_mods()
                 if not self.carpeta_destino:
-                    self.carpeta_destino = "./descargas"  # Usar ./descargas si no se elige carpeta
+                    self.carpeta_destino = "./descargas_Launcher"  # Usar ./descargas si no se elige carpeta
                 if not os.path.exists(self.carpeta_destino):
                     os.makedirs(self.carpeta_destino)
 
@@ -410,7 +410,7 @@ class LWLauncher:
                     self.reanudar_button.config(state=tk.DISABLED)
 
                     # Buscar la línea que coincide con el valor del combobox
-                    combobox_value = self.opcionesCB[self.combo_version.current()]  # Obtener el valor seleccionado en el combobox
+                    combobox_value = self.opcionesCB[self.combobox.current()]  # Obtener el valor seleccionado en el combobox
                     self.urls = []  # Limpiar la lista de URLs
 
                     # Encontrar la línea que contiene el valor seleccionado en el combobox
