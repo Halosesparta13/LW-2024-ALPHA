@@ -10,10 +10,12 @@ import webbrowser  # Importar el módulo webbrowser
 import re
 import platform
 import subprocess
+import sys
 
 class LWLauncher:
     def __init__(self, root):
         self.root = root
+        self.verificar_version_launcher()
         # Cargar la imagen
         self.cargar_imagen()
         
@@ -24,6 +26,7 @@ class LWLauncher:
 
     def inicializar_variables(self):
         self.url_version = "https://raw.githubusercontent.com/Aarods/LuckyWorld-Launcher/main/Version.txt"
+        self.url_launcher_version = "https://raw.githubusercontent.com/Halosesparta13/LW-2024-ALPHA/refs/heads/main/Launcher_Version.txt"
         self.carpeta_destino = None
         self.descargando = False
         self.pausado = False
@@ -72,6 +75,46 @@ class LWLauncher:
         
         # Configurar la barra de menús en la ventana
         self.root.config(menu=menu_bar)
+
+    def verificar_version_launcher(self):
+        try:
+            # Leer la versión local desde version.txt (segunda línea)
+            with open("version.txt", "r") as f:
+                lines = f.readlines()
+                if len(lines) < 2:
+                    messagebox.showerror("Error", "El archivo version.txt no tiene una segunda línea con la versión.")
+                    return
+                version_local = lines[1].strip()
+
+            # Obtener la versión remota desde self.url_launcher_version (primera línea)
+            response = requests.get(self.url_launcher_version)
+            response.raise_for_status()
+            content = response.text.strip().split('\n')
+            if len(content) < 2:
+                messagebox.showerror("Error", "El archivo en url_launcher_version no tiene una segunda línea con el link de descarga.")
+                return
+            version_remota = content[0].strip()
+            url_descarga = content[1].strip()  # Segunda línea, link de descarga
+
+            # Comparar versiones
+            if version_remota > version_local:
+                respuesta = messagebox.askyesno("Actualización disponible", 
+                                                "Hay una versión superior del launcher. ¿Desea actualizar?")
+                if respuesta:
+                    # Descargar el archivo de actualización
+                    nombre_archivo = os.path.join(os.getcwd(), "launcher_actualizado.exe")  # Puedes cambiar el nombre del archivo si prefieres
+                    descarga = requests.get(url_descarga, stream=True)
+                    with open(nombre_archivo, "wb") as archivo:
+                        for chunk in descarga.iter_content(chunk_size=8192):
+                            archivo.write(chunk)
+
+                    messagebox.showinfo("Actualización completada", "El launcher se ha actualizado. Reiniciando...")
+                    
+                    # Reiniciar el programa
+                    os.execv(nombre_archivo, sys.argv)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")
 
     def abrir_url_version(self):
         if not self.url_version:
