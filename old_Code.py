@@ -116,10 +116,10 @@ class LWLauncher:
                 respuesta = messagebox.askyesno("Actualización disponible", 
                                                 "Hay una versión superior del launcher. ¿Desea actualizar?")
                 if respuesta:
-                    # Descargar el archivo de actualización
-                    nombre_archivo = os.path.join(os.getcwd(), "Luckyworld Launcher.exe")  # Nombre del archivo ejecutable
+                    # Descargar el archivo de actualización a una ubicación temporal
+                    temp_file = os.path.join(os.getcwd(), "temp_Luckyworld_Launcher.exe")
                     descarga = requests.get(url_descarga, stream=True)
-                    with open(nombre_archivo, "wb") as archivo:
+                    with open(temp_file, "wb") as archivo:
                         for chunk in descarga.iter_content(chunk_size=8192):
                             archivo.write(chunk)
 
@@ -133,13 +133,16 @@ class LWLauncher:
                     # Cerrar el programa
                     sys.exit()  # Cierra el programa
 
-            else:
-                print("Ya tienes la última versión del launcher.")
-                #messagebox.showinfo("Actualización no necesaria", "Ya tienes la última versión del launcher.")
+                    # Mover el archivo descargado al destino
+                    os.rename(temp_file, "Luckyworld Launcher.exe")
+                    messagebox.showinfo("Reiniciar", "El launcher ha sido actualizado. Reiniciando...")
+
+                    # Reiniciar el programa
+                    #os.execv("Luckyworld Launcher.exe", sys.argv)
 
         except Exception as e:
-            messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")
-            
+            messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")   
+    
     def abrir_url_version(self):
         if not self.url_version:
             messagebox.showerror("Error", "No hay una URL de versión disponible para abrir.")
@@ -201,19 +204,35 @@ class LWLauncher:
         messagebox.showinfo("Acerca de", mensaje)
 
     def cargar_imagen(self):
-        # Cargar la imagen desde un archivo
-        imagen_original = Image.open("assets/lw_bg.png")
+        # Determinar la ruta base, ya sea en modo desarrollo o en el ejecutable
+        if getattr(sys, 'frozen', False):  # Si el script está ejecutándose desde el ejecutable
+            ruta_base = sys._MEIPASS  # Directorio temporal donde PyInstaller extrae los archivos
+        else:
+            ruta_base = os.path.dirname(__file__)  # Si está ejecutándose desde el script
+
+        # Ruta completa de la imagen en la carpeta 'assets'
+        ruta_imagen = os.path.join(ruta_base, 'assets', 'lw_bg.png')
+
+        try:
+            # Cargar la imagen desde la ruta
+            imagen_original = Image.open(ruta_imagen)
         
-        # Redimensionar la imagen
-        nueva_ancho, nueva_alto = 850, 400  # Define el tamaño deseado
-        imagen_redimensionada = imagen_original.resize((nueva_ancho, nueva_alto), Image.LANCZOS) #ANTIALIAS
+            # Redimensionar la imagen
+            nueva_ancho, nueva_alto = 850, 400  # Define el tamaño deseado
+            imagen_redimensionada = imagen_original.resize((nueva_ancho, nueva_alto), Image.LANCZOS) #ANTIALIAS
         
-        # Convertir para mostrar en Tkinter
-        self.imagen_tk = ImageTk.PhotoImage(imagen_redimensionada)
-        fondo_color = "#2E2E2E"
-        # Crear un Label y asignar la imagen
-        self.label_imagen = tk.Label(self.root, image=self.imagen_tk,bg=fondo_color)
-        self.label_imagen.place(x=0, y=0)
+            # Convertir para mostrar en Tkinter
+            self.imagen_tk = ImageTk.PhotoImage(imagen_redimensionada)
+            fondo_color = "#2E2E2E"
+        
+            # Crear un Label y asignar la imagen
+            self.label_imagen = tk.Label(self.root, image=self.imagen_tk, bg=fondo_color)
+            self.label_imagen.place(x=0, y=0)
+        except FileNotFoundError:
+            print(f"Error: No se encuentra la imagen en {ruta_imagen}.")
+            # Si no se encuentra la imagen, puedes manejarlo de alguna manera
+            self.label_imagen = tk.Label(self.root, text="Imagen no encontrada", bg=fondo_color)
+            self.label_imagen.place(x=0, y=0)
 
     def obtener_versiones(self):
         try:
