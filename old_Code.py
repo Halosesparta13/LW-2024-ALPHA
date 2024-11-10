@@ -356,11 +356,24 @@ class LWLauncher:
             response.raise_for_status()  # Lanza una excepción si la solicitud falló
             content = response.text.strip().split('\n')
             version_remota = content[0].strip()
+            
+            # Validar si el usuario seleccionó una carpeta de destino
+            if not self.carpeta_destino:  # Si carpeta_destino está vacía
+                messagebox.showerror("Error", "Debes de elegir una carpeta destino antes de descargar")
+                return  # Detener ejecución hasta que elija una carpeta
+
+            # Validar si el usuario seleccionó una versión en el ComboBox
+            if self.combobox.current() == -1:  # -1 indica que no se ha seleccionado ningún valor
+                messagebox.showerror("Error", "Debes elegir una versión a instalar antes de descargar")
+                return  # Detener ejecución hasta que elija una versión
 
             if version_remota == self.version_local:
                 respuesta = messagebox.askyesno("Advertencia", "Ya tienes la última versión. ¿Deseas continuar con la descarga?")
                 if respuesta:
+                    print("Eliminando carpeta de mods...")
                     self.eliminar_carpeta_mods()
+                    print("Carpeta mods eliminada. Continuando con el flujo.")
+                    print("Configurando carpeta destino y estado de descarga...")
                     if not self.carpeta_destino:
                         self.carpeta_destino = "./descargas"  # Usar ./descargas si no se elige carpeta
                         print(f"Carpeta destino Iniciar_Descarga (FALLO) {self.carpeta_destino}")
@@ -473,6 +486,9 @@ class LWLauncher:
 
         # Descomprimir y eliminar archivos ZIP después de todas las descargas
         self.descomprimir_y_eliminar_archivos()
+        self.descargando = False
+        self.pausado = False
+
 
     def descomprimir_y_eliminar_archivos(self):
         print("Iniciando proceso para descomprimir")
