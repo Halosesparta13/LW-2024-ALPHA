@@ -55,7 +55,7 @@ class LWLauncher:
 
 
     def configurar_ventana(self):
-        self.root.title("Launcher LuckyWorld - ALPHA")
+        self.root.title("Launcher LuckyWorld - BETA")
         #WidthB = 980
         #HeightB = 650
         self.root.geometry("850x550")  # Definir tamaño de la ventana (ancho x alto)
@@ -124,14 +124,18 @@ class LWLauncher:
                             archivo.write(chunk)
 
                     # Actualizar solo la segunda línea de Version.txt
-                    lines[1] = f"{version_remota_Launcher}"  # Modificar solo la segunda línea
+                    lines[1] = f"{version_remota_Launcher}\n"  # Modificar solo la segunda línea
                     with open("Version.txt", "w") as f:
                         f.writelines(lines)
 
                     messagebox.showinfo("Actualización completada", "El launcher se ha descargado. El programa se cerrará y actualizará...")
 
-                    # Ejecutar el actualizador en segundo plano
-                    self.ejecutar_actualizador()
+                    # Renombrar el archivo descargado a LuckyWorld Launcher [version_remota_Launcher].exe
+                    nuevo_nombre = f"LuckyWorld Launcher {version_remota_Launcher}v.exe"
+                    os.rename(temp_file, nuevo_nombre)
+
+                    # Ejecutar el nuevo launcher
+                    subprocess.Popen([nuevo_nombre])
 
                     # Cerrar el programa principal
                     sys.exit()  # Cierra el programa
@@ -139,25 +143,6 @@ class LWLauncher:
         except Exception as e:
             messagebox.showerror("Error", f"Error al verificar la versión del launcher: {e}")
 
-    def ejecutar_actualizador(self):
-        try:
-            # Determinar la ruta de actualizador.py usando sys._MEIPASS para el caso de onefile
-            if getattr(sys, 'frozen', False):
-                # Si estamos ejecutando el archivo empaquetado (onefile), usamos sys._MEIPASS
-                current_dir = sys._MEIPASS
-            else:
-                # Si estamos ejecutando desde el código fuente original
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-
-            # Ruta completa de actualizador.py
-            actualizador_path = os.path.join(current_dir, 'actualizador.py')
-
-            # Ejecutar el actualizador en segundo plano
-            subprocess.Popen([sys.executable, actualizador_path])
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Error al ejecutar el actualizador: {e}")
-            
     def abrir_url_version(self):
         if not self.url_version:
             messagebox.showerror("Error", "No hay una URL de versión disponible para abrir.")
