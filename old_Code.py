@@ -91,6 +91,7 @@ class LWLauncher:
         # Configurar la barra de menús en la ventana
         self.root.config(menu=menu_bar)
 
+##-Re trabajar esta función, no está optimizada
     def verificar_y_eliminar_launcher_antiguo(self, nuevo_nombre):
         try:
             # Obtener el directorio actual (donde está el nuevo launcher)
@@ -128,7 +129,7 @@ class LWLauncher:
             response.raise_for_status()
             content = response.text.strip().split('\n')
             if len(content) < 2:
-                messagebox.showerror("Error", "El archivo en url_launcher_version no tiene una segunda línea con el link de descarga.")
+                messagebox.showerror("Error", "El archivo en url_launcher_version no tiene una segunda línea con el link de descarga. \n[ERROR INTERNO, COMUNICARSE CON HALOSESPARTA]")
                 return
             version_remota_Launcher = content[0].strip()
             url_descarga = content[1].strip()  # Segunda línea, link de descarga
@@ -357,7 +358,7 @@ class LWLauncher:
         self.speed_label = tk.Label(self.root, text="Velocidad: 0 MB/s", font=("Helvetica", 11), fg=texto_color, bg=fondo_color)
         self.speed_label.place(x=15, y=510)
 
-
+###-Simplificar codigo
     def obtener_version_local(self):
         version_archivo = "Version.txt"
         if os.path.exists(version_archivo):
