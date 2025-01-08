@@ -384,6 +384,7 @@ class LWLauncher:
 
     def elegir_ubicacion(self):
         # Definir la ruta predeterminada según el sistema operativo
+        messagebox.showinfo("Info", "Elija la carpeta donde se encuentran los archivos de Minecraft.")
         sistema = platform.system()
         if sistema == "Windows":
             ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
@@ -396,20 +397,37 @@ class LWLauncher:
             ruta_predeterminada = "./minecraft"
 
         print(f"Ruta predeterminada: {ruta_predeterminada}")
-        
+
         # Abrir el diálogo para seleccionar una carpeta, usando la ruta predeterminada
         self.carpeta_destino = filedialog.askdirectory(initialdir=ruta_predeterminada)
         print(f"Carpeta destino (elegida): {self.carpeta_destino}")
+        archivo_version = "Version.txt"
+        with open(archivo_version, "r") as archivo:
+                lineas = archivo.readlines()
 
-        if not self.carpeta_destino:  # Si no se selecciona ninguna carpeta
-            messagebox.showinfo("Info", "No se seleccionó carpeta, se usará ./descargas por defecto.")
-            self.carpeta_destino = "./descargas"
-            print(f"Carpeta destino actualizada (no seleccionó carpeta): {self.carpeta_destino}")
+        # Asegurarse de que haya al menos 3 líneas
+        while len(lineas) < 3:
+            lineas.append("\n")
+        
+        # Escribir "ruta" en la tercera línea
+        lineas[2] = self.carpeta_destino + "\n"
+        
+        # Sobrescribir el archivo con las líneas actualizadas
+        with open(archivo_version, "w") as archivo:
+            archivo.writelines(lineas)
+        
+        print(f"Se escribió la carpeta destino en la tercera línea de {archivo_version}.")
+
+
+        #if not self.carpeta_destino:  # Si no se selecciona ninguna carpeta
+            #messagebox.showinfo("Info", "No se seleccionó carpeta, se usará ./descargas por defecto.")
+        #    self.carpeta_destino = "./descargas"
+        #    print(f"Carpeta destino actualizada (no seleccionó carpeta): {self.carpeta_destino}")
         
         # Crear la carpeta destino si no existe
-        if not os.path.exists(self.carpeta_destino):
-            os.makedirs(self.carpeta_destino)
-            print(f"Carpeta destino creada (no existía): {self.carpeta_destino}")
+       # if not os.path.exists(self.carpeta_destino):
+        #    os.makedirs(self.carpeta_destino)
+        #    print(f"Carpeta destino creada (no existía): {self.carpeta_destino}")
             
     def eliminar_carpeta_mods(self):
         ruta_mods = os.path.join(self.carpeta_destino, 'mods')
