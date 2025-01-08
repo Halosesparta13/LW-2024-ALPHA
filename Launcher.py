@@ -40,7 +40,7 @@ class LWLauncher:
 
 
     def inicializar_variables(self):
-        self.url_version = "https://raw.githubusercontent.com/Aarods/LuckyWorld-Launcher/main/Version.txt"
+        self.url_version = "https://raw.githubusercontent.com/Halosesparta13/LW-2024-ALPHA/refs/heads/main/Version_Test"
         self.url_launcher_version = "https://raw.githubusercontent.com/Halosesparta13/LW-2024-ALPHA/refs/heads/main/Launcher_Version.txt"
         self.carpeta_destino = None
         self.descargando = False
@@ -541,7 +541,7 @@ class LWLauncher:
                 messagebox.showerror("Error", "Debes de elegir una carpeta destino antes de descargar")
                 return  # Detener ejecución hasta que elija una carpeta
 
-            # Validar si el usuario seleccionó una versión en el ComboBox
+            # Validar si el usuario seleccionó una versión en el 
             if self.combobox.current() == -1:  # -1 indica que no se ha seleccionado ningún valor
                 messagebox.showerror("Error", "Debes elegir una versión a instalar antes de descargar")
                 return  # Detener ejecución hasta que elija una versión
