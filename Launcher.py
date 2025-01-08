@@ -225,7 +225,7 @@ class LWLauncher:
                    f"Versión {self.obtener_version_local()}\n"
                    "Desarrollado por Halosesparta\n"
                    "Modpacks por Aarods21\n\n"
-                   "Este es un software en desarrollo. "
+                   "¡Descarga tus mods en un solo lugar!"
                    "Asegúrate de tener siempre la última versión disponible.")
         messagebox.showinfo("Acerca de", mensaje)
 
@@ -389,6 +389,8 @@ class LWLauncher:
             ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
         elif sistema == "Darwin":  # macOS
             ruta_predeterminada = os.path.expanduser('~/Library/Application Support/minecraft')
+        elif sistema == "Linux":  # Linux
+            ruta_predeterminada = os.path.expanduser('~/.minecraft')
         else:
             # Ruta genérica para otros sistemas operativos
             ruta_predeterminada = "./minecraft"
