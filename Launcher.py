@@ -575,12 +575,15 @@ class LWLauncher:
                 respuesta = messagebox.askyesno("Advertencia", "Ya tienes la última versión. ¿Deseas continuar con la descarga?")
                 if respuesta:
                     print("Eliminando carpeta de mods...")
-                    self.eliminar_carpeta_mods()
+                    self.eliminar_carpetas()
                     print("Carpeta mods eliminada. Continuando con el flujo.")
                     print("Configurando carpeta destino y estado de descarga...")
+
+                    ##esto lo voy a cambiar probablemente, fue solo de prueba
                     if not self.carpeta_destino:
                         self.carpeta_destino = "./descargas"  # Usar ./descargas si no se elige carpeta
                         print(f"Carpeta destino Iniciar_Descarga (FALLO) {self.carpeta_destino}")
+                    ##quizas lo cambie tmb?
                     if not os.path.exists(self.carpeta_destino):
                         os.makedirs(self.carpeta_destino)
                         print(f"Carpeta destino Iniciar_Descarga (FALLO) {self.carpeta_destino}")
@@ -624,7 +627,7 @@ class LWLauncher:
                 self.version_local = version_remota
                 self.guardar_version(version_remota)
 
-                self.eliminar_carpeta_mods()
+                self.eliminar_carpetas()
                 if not self.carpeta_destino:
                     self.carpeta_destino = "./descargas_Launcher"  # Usar ./descargas si no se elige carpeta
                 if not os.path.exists(self.carpeta_destino):
@@ -669,63 +672,63 @@ class LWLauncher:
         self.descargando = True
         self.pausado = False
 
-        # Definir rutas de destino
-        ruta_mods =os.path.join(self.carpeta_destino, 'mods')
-        print(f"Ruta Mods PROCESAR DESCARGA {ruta_mods}")
-        ruta_minecraft = os.path.join(self.carpeta_destino)
-        print(f"Ruta Minecraft PROCESAR DESCARGA {ruta_minecraft}")
+        # Ruta para el archivo Modpack.zip
+        ruta_modpack = os.path.join(self.carpeta_destino, 'Modpack.zip')
+        print(f"Ruta Modpack: {ruta_modpack}")
 
-        ##UH.. creo que esto lo borrare pero no estoy seguro
-        if not os.path.exists(ruta_mods):
-            os.makedirs(ruta_mods)
-        if not os.path.exists(ruta_minecraft):
-            os.makedirs(ruta_minecraft)
+        # Descargar el archivo Modpack.zip
+        try:
+            self.descargar_archivo(self.urls[0], self.carpeta_destino) 
+            print(f"Archivo Modpack.zip descargado en {self.carpeta_destino}.")
+        except Exception as e:
+            print(f"Error al descargar Modpack.zip: {e}")
+            messagebox.showerror("Error", f"No se pudo descargar el archivo Modpack.zip: {e}")
+            self.descargando = False
+            return
 
-        # Descargar archivos a las rutas correspondientes
-        for i, url in enumerate(self.urls):
-            if i < 6:  # Índices 0 a 5 corresponden a líneas 3 a 8
-                self.descargar_archivo(url, ruta_mods)
-            elif i == 6:  # Índice 6 corresponde a la línea 11
-                self.descargar_archivo(url, ruta_minecraft)
-
-        # Descomprimir y eliminar archivos ZIP después de todas las descargas
-        self.descomprimir_y_eliminar_archivos()
+        # Descomprimir y procesar el archivo Modpack.zip
+        self.descomprimir_y_procesar_modpack(ruta_modpack)
         self.descargando = False
         self.pausado = False
 
 
-    def descomprimir_y_eliminar_archivos(self):
-        print("Iniciando proceso para descomprimir")
-        ruta_mods = os.path.join(self.carpeta_destino, 'mods')
-        print(f"Descomprimir RUTA MODS {ruta_mods}")
-        ruta_minecraft = os.path.join(self.carpeta_destino)
-        print(f"Descomprimir RUTA MINECRAFT {ruta_mods}")
+    def descomprimir_y_procesar_modpack(self, ruta_modpack):
+        print("Iniciando descompresión del Modpack.zip")
 
-        for archivo_zip in self.zip_files:
-            try:
-                # Determinar la ruta de destino basada en el nombre del archivo ZIP
-                nombre_archivo = os.path.basename(archivo_zip)
-                if nombre_archivo in ["config.zip", "emotes.zip", "resourcepacks.zip"]:
-                    destino = ruta_minecraft
+        try:
+            # Verificar que el archivo ZIP exista
+            if not os.path.exists(ruta_modpack):
+                raise FileNotFoundError(f"No se encontró el archivo: {ruta_modpack}")
+
+            # Extraer el contenido del archivo Modpack.zip
+            with zipfile.ZipFile(ruta_modpack, 'r') as zip_ref:
+                zip_ref.extractall(self.carpeta_destino)  # Extraer en la carpeta destino
+                print(f"Archivo {ruta_modpack} descomprimido en {self.carpeta_destino}.")
+
+            # Definir rutas de las carpetas extraídas
+            ruta_mods = os.path.join(self.carpeta_destino, 'mods')
+            ruta_config = os.path.join(self.carpeta_destino, 'config')
+            ruta_emotes = os.path.join(self.carpeta_destino, 'emotes')
+
+            # Verificar y procesar cada carpeta extraída
+            for carpeta in ['mods', 'config', 'emotes']:
+                ruta_carpeta = os.path.join(self.carpeta_destino, carpeta)
+                if os.path.exists(ruta_carpeta):
+                    print(f"Carpeta '{carpeta}' procesada correctamente.")
                 else:
-                    destino = ruta_mods
+                    print(f"Advertencia: No se encontró la carpeta '{carpeta}' en el Modpack.")
 
-                # Asegurarse de que la carpeta de destino exista (no se si borrarlo ya que no tiene sentido)
-                if not os.path.exists(destino):
-                    os.makedirs(destino)
+            # Eliminar el archivo Modpack.zip después de descomprimir
+            os.remove(ruta_modpack)
+            print(f"Archivo {ruta_modpack} eliminado después de la descompresión.")
 
-                # Descomprimir el archivo ZIP en la carpeta de destino
-                with zipfile.ZipFile(archivo_zip, 'r') as zip_ref:
-                    zip_ref.extractall(destino)  # Extraer todo el contenido
-                    print(f"Descomprimiendo en {destino}")
-                os.remove(archivo_zip)  # Eliminar el archivo ZIP
-                self.status_label.config(text=f"Descomprimiendo {archivo_zip}...")
-                print(f"Archivo {archivo_zip} descomprimido y eliminado en {destino}.")
-            except Exception as e:
-                print(f"Error al descomprimir el archivo {archivo_zip}: {e}")
-        messagebox.showinfo("Completado", "¡Se completó de forma exitosa del Modpack!")
-        self.status_label.config(text=f"¡Completado!")
-        self.elegir_button.config(state=tk.NORMAL)
+            # Mostrar mensaje de finalización
+            messagebox.showinfo("Completado", "¡El Modpack se descomprimió y procesó correctamente!")
+            self.status_label.config(text="¡Completado!")
+        except Exception as e:
+            print(f"Error al procesar el Modpack.zip: {e}")
+            messagebox.showerror("Error", f"Error al descomprimir el archivo Modpack.zip: {e}")
+
 
     def pausar_descarga(self):
         if self.descargando:
