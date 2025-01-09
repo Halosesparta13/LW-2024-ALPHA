@@ -114,6 +114,7 @@ class LWLauncher:
         except Exception as e:
             print(f"Error al intentar verificar y eliminar el launcher antiguo: {e}")
 
+## SE NECESITA TRABAJAR
     def verificar_version_launcher(self):
         try:
             # Leer la versión local desde la segunda línea de Version.txt
@@ -430,32 +431,37 @@ class LWLauncher:
         #    os.makedirs(self.carpeta_destino)
         #    print(f"Carpeta destino creada (no existía): {self.carpeta_destino}")
             
-    def eliminar_carpeta_mods(self):
-        ruta_mods = os.path.join(self.carpeta_destino, 'mods')
+   ##Incluyendo eliminación de config, emojis y mods
+    def eliminar_carpetas(self):
+        carpetas_a_eliminar = ['mods', 'config', 'emotes']
 
-        if os.path.exists(ruta_mods):
-            respuesta = messagebox.askyesno(
-                "Confirmación",
-                "Se procederá a eliminar la carpeta 'mods' para asegurar una instalación limpia. ¿Desea continuar?"
-            )
-            if respuesta:
-                try:
-                    # Eliminar la carpeta y todo su contenido
-                    for root, dirs, files in os.walk(ruta_mods, topdown=False):
-                        for name in files:
-                            os.remove(os.path.join(root, name))
-                        for name in dirs:
-                            os.rmdir(os.path.join(root, name))
-                    os.rmdir(ruta_mods)
-                    print("Carpeta 'mods' eliminada.")
-                except Exception as e:
-                    print(f"Error al eliminar la carpeta 'mods': {e}")
-                    messagebox.showerror("Error", f"Error al eliminar la carpeta 'mods': {e}")
+        # Iterar por las carpetas que se desean eliminar
+        for nombre_carpeta in carpetas_a_eliminar:
+            ruta_carpeta = os.path.join(self.carpeta_destino, nombre_carpeta)
+
+            if os.path.exists(ruta_carpeta):
+                respuesta = messagebox.askyesno(
+                    "Confirmación",
+                    f"Se procederá a eliminar la carpeta '{nombre_carpeta}' para asegurar una instalación limpia. ¿Desea continuar?"
+                )
+                if respuesta:
+                    try:
+                        # Eliminar la carpeta y todo su contenido
+                        for root, dirs, files in os.walk(ruta_carpeta, topdown=False):
+                            for name in files:
+                                os.remove(os.path.join(root, name))
+                            for name in dirs:
+                                os.rmdir(os.path.join(root, name))
+                        os.rmdir(ruta_carpeta)
+                        print(f"Carpeta '{nombre_carpeta}' eliminada.")
+                    except Exception as e:
+                        print(f"Error al eliminar la carpeta '{nombre_carpeta}': {e}")
+                        messagebox.showerror("Error", f"Error al eliminar la carpeta '{nombre_carpeta}': {e}")
+                else:
+                    print(f"La eliminación de la carpeta '{nombre_carpeta}' ha sido cancelada.")
             else:
-                print("La eliminación de la carpeta 'mods' ha sido cancelada.")
-        else:
-            print("No se ha encontrado la carpeta 'mods' por lo que se saltea este paso")
-
+                print(f"No se ha encontrado la carpeta '{nombre_carpeta}', por lo que se saltea este paso.")
+   
     def descargar_archivo(self, url, destino):
         try:
             nombre_archivo = url.split("/")[-1].split("?")[0]
