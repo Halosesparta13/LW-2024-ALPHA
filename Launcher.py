@@ -420,6 +420,9 @@ class LWLauncher:
         
         print(f"Se escribió la carpeta destino en la tercera línea de {archivo_version}.")
 
+        if not self.carpeta_destino:
+            messagebox.showinfo("Info", "No se seleccionó carpeta, asegurase de elegirlo correctamente")
+            return
 
         #if not self.carpeta_destino:  # Si no se selecciona ninguna carpeta
             #messagebox.showinfo("Info", "No se seleccionó carpeta, se usará ./descargas por defecto.")
@@ -563,14 +566,14 @@ class LWLauncher:
             print(version_remota)
             # Validar si el usuario seleccionó una carpeta de destino
             if not self.carpeta_destino:  # Si carpeta_destino está vacía
+                print("La carpeta esta vacia")
                 messagebox.showerror("Error", "Debes de elegir una carpeta destino antes de descargar")
                 return  # Detener ejecución hasta que elija una carpeta
-
             # Validar si el usuario seleccionó una versión en el 
             if self.combobox.current() == -1:  # -1 indica que no se ha seleccionado ningún valor
                 messagebox.showerror("Error", "Debes elegir una versión a instalar antes de descargar")
                 return  # Detener ejecución hasta que elija una versión
-
+            print("comparando versiones...")
             if version_remota == self.version_local:
                 respuesta = messagebox.askyesno("Advertencia", "Ya tienes la última versión. ¿Deseas continuar con la descarga?")
                 if respuesta:
@@ -617,7 +620,7 @@ class LWLauncher:
                         if not encontrado or not self.urls:
                             messagebox.showerror("Error", "No se encontraron URLs para descargar después de la versión seleccionada.")
                             return
-
+                        print ("Iniciando ahora si descarga")
                         # Iniciar el proceso de descarga
                         self.thread = threading.Thread(target=self.procesar_descargas)
                         self.thread.start()
@@ -671,7 +674,7 @@ class LWLauncher:
     def procesar_descargas(self):
         self.descargando = True
         self.pausado = False
-
+        print("Procesando descarga")
         # Ruta para el archivo Modpack.zip
         ruta_modpack = os.path.join(self.carpeta_destino, 'Modpack.zip')
         print(f"Ruta Modpack: {ruta_modpack}")
