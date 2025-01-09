@@ -384,7 +384,8 @@ class LWLauncher:
 
     def elegir_ubicacion(self):
         # Definir la ruta predeterminada según el sistema operativo
-        messagebox.showinfo("Info", "Elija la carpeta donde se encuentran los archivos de Minecraft.")
+        if self.carpeta_destino == "":
+            messagebox.showinfo("Info", "Elija la carpeta donde se encuentran los archivos de Minecraft.")
         sistema = platform.system()
         if sistema == "Windows":
             ruta_predeterminada = os.path.join(os.getenv('APPDATA'), '.minecraft')
