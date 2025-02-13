@@ -574,6 +574,7 @@ class LWLauncher:
                 messagebox.showerror("Error", "Debes elegir una versión a instalar antes de descargar")
                 return  # Detener ejecución hasta que elija una versión
             print("comparando versiones...")
+            print(self.version_local)
             if version_remota == self.version_local:
                 respuesta = messagebox.askyesno("Advertencia", "Ya tienes la última versión. ¿Deseas continuar con la descarga?")
                 if respuesta:
